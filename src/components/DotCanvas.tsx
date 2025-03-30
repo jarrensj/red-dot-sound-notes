@@ -2,6 +2,10 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Dot } from "@/types/dot";
+import DotItem from "@/components/dots/DotItem";
+import DotTooltip from "@/components/dots/DotTooltip";
+import ViewingPopup from "@/components/dots/ViewingPopup";
+import AddingModeIndicator from "@/components/dots/AddingModeIndicator";
 
 interface DotCanvasProps {
   dots: Dot[];
@@ -53,6 +57,15 @@ const DotCanvas = ({
     }
   };
 
+  // Handle dot click without propagating to canvas
+  const handleDotClick = (dot: Dot) => {
+    if (isViewOnly) {
+      setViewingDot(viewingDot?.id === dot.id ? null : dot);
+    } else {
+      onDotClick(dot);
+    }
+  };
+
   // Close the viewing popup when clicking elsewhere on the canvas
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -85,75 +98,32 @@ const DotCanvas = ({
       className={`w-full h-full ${isAddingMode ? 'cursor-crosshair' : isViewOnly ? 'cursor-pointer' : 'cursor-pointer'}`}
       onClick={handleClick}
     >
-      {isAddingMode && (
-        <div className="absolute top-4 right-4 bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-medium animate-pulse">
-          Click anywhere to add a new dot
-        </div>
-      )}
-      
-      {/* Remove the view mode indicator since we now have a button */}
+      {isAddingMode && <AddingModeIndicator />}
       
       <AnimatePresence>
         {dots.map((dot) => (
-          <motion.div
-            key={dot.id}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.2 }}
-            style={{
-              left: `${dot.x}%`,
-              top: `${dot.y}%`,
-            }}
-            className={`absolute w-5 h-5 -translate-x-1/2 -translate-y-1/2 rounded-full
-                       ${dot.text ? "bg-indigo-600" : "bg-purple-200"} 
-                       ${isViewOnly ? "cursor-pointer" : "cursor-pointer"}
-                       ${(hoveredDot === dot.id || viewingDot?.id === dot.id) ? "ring-2 ring-purple-300 ring-opacity-70" : ""}`}
-            onMouseEnter={() => setHoveredDot(dot.id)}
-            onMouseLeave={() => setHoveredDot(null)}
-          >
-            {/* Display tooltip when hovering over a dot with text */}
+          <div key={dot.id} className="relative">
+            <DotItem
+              dot={dot}
+              isViewOnly={isViewOnly}
+              isViewing={hoveredDot === dot.id || viewingDot?.id === dot.id}
+              onDotClick={handleDotClick}
+              onHover={setHoveredDot}
+            />
+            
+            {/* Show tooltip only when hovering and not viewing any dot */}
             {hoveredDot === dot.id && dot.text && !viewingDot && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-white/90 
-                           backdrop-blur-sm text-xs rounded shadow-md border border-purple-100 
-                           max-w-[150px] truncate z-10"
-              >
-                {dot.text}
-              </motion.div>
+              <DotTooltip text={dot.text} />
             )}
             
-            {/* Display full note content when clicked in view mode */}
+            {/* Show full content popup when in view mode and dot is selected */}
             {viewingDot?.id === dot.id && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="absolute top-full mt-4 left-1/2 -translate-x-1/2 px-4 py-3 bg-white 
-                           rounded-lg shadow-lg border border-purple-100 
-                           max-w-[300px] z-20"
-              >
-                <div className="text-sm font-medium text-gray-800 mb-1">Note</div>
-                <div className="text-sm text-gray-600 whitespace-pre-wrap break-words">
-                  {dot.text || "No content"}
-                </div>
-                <button 
-                  className="absolute top-2 right-2 text-gray-400 hover:text-gray-600" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setViewingDot(null);
-                  }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </button>
-              </motion.div>
+              <ViewingPopup 
+                dot={dot} 
+                onClose={() => setViewingDot(null)} 
+              />
             )}
-          </motion.div>
+          </div>
         ))}
       </AnimatePresence>
     </div>
