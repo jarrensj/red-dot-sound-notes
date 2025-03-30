@@ -119,13 +119,13 @@ const DotCanvas = ({
     >
       {/* Background sample text */}
       <div className="absolute inset-0 p-8 overflow-auto pointer-events-none">
-        <p className="text-gray-300 text-lg leading-relaxed">
+        <p className="text-lg leading-relaxed">
           This is sample text of a sample blog post, you can leave red dot note annotations around the blog and it'll be a surprise of what user audio is saved there, could be a voice note about the blog or just random message or random audio.
         </p>
-        <p className="text-gray-300 text-lg leading-relaxed mt-4">
+        <p className="text-lg leading-relaxed mt-4">
           They could leave a voice note all around a blog or around a website. There can be affirmations or really just random funny notes. You never know what audio might be saved there.
         </p>
-        <p className="text-gray-300 text-lg leading-relaxed mt-4">
+        <p className="text-lg leading-relaxed mt-4">
           Future things to implement include user authentication to record who left the note.
         </p>
       </div>
