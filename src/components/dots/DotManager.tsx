@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import DotCanvas from "@/components/DotCanvas";
@@ -56,13 +57,13 @@ const DotManager = ({ dots, setDots, isLoading }: DotManagerProps) => {
   };
 
   const handleDotClick = (dot: Dot) => {
+    // Don't open the modal in view-only mode - the canvas component will handle showing the note
+    if (isViewOnly) return;
+    
+    // Only proceed if we're in edit mode
     setSelectedDot(dot);
     setIsNewDot(false);
-    
-    // In view-only mode, always start in view mode
-    // In edit mode, start in edit mode for better UX
-    setIsEditMode(!isViewOnly);
-    
+    setIsEditMode(true);
     setIsModalOpen(true);
   };
 
