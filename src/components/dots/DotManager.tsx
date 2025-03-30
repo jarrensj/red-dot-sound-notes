@@ -20,6 +20,7 @@ const DotManager = ({ dots, setDots, isLoading }: DotManagerProps) => {
   const [isAddingMode, setIsAddingMode] = useState(false);
   const [isNewDot, setIsNewDot] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isViewOnly, setIsViewOnly] = useState(true); // Start in view-only mode
   const { toast } = useToast();
 
   const handleCanvasClick = async (x: number, y: number) => {
@@ -56,12 +57,28 @@ const DotManager = ({ dots, setDots, isLoading }: DotManagerProps) => {
   const handleDotClick = (dot: Dot) => {
     setSelectedDot(dot);
     setIsNewDot(false);
-    setIsEditMode(false); // Existing dots start in view-only mode
+    
+    // In view-only mode, always start in view mode
+    // In edit mode, start in edit mode for better UX
+    setIsEditMode(!isViewOnly);
+    
     setIsModalOpen(true);
   };
 
   const toggleEditMode = () => {
     setIsEditMode(!isEditMode);
+  };
+
+  const toggleViewOnly = () => {
+    setIsViewOnly(!isViewOnly);
+    
+    // When entering edit mode from view-only mode, show a helpful toast
+    if (isViewOnly) {
+      toast({
+        title: "Edit mode activated",
+        description: "You can now edit dots by clicking on them.",
+      });
+    }
   };
 
   const handleSaveNote = async (text: string) => {
@@ -165,6 +182,10 @@ const DotManager = ({ dots, setDots, isLoading }: DotManagerProps) => {
   };
 
   const toggleAddingMode = () => {
+    // When enabling adding mode, also disable view-only mode
+    if (!isAddingMode) {
+      setIsViewOnly(false);
+    }
     setIsAddingMode(!isAddingMode);
   };
 
@@ -179,11 +200,24 @@ const DotManager = ({ dots, setDots, isLoading }: DotManagerProps) => {
             onCanvasClick={handleCanvasClick} 
             onDotClick={handleDotClick}
             isAddingMode={isAddingMode}
+            isViewOnly={isViewOnly}
           />
-          <AddDotButton 
-            isAddingMode={isAddingMode} 
-            toggleAddingMode={toggleAddingMode} 
-          />
+          <div className="absolute bottom-4 right-4 flex gap-2">
+            {!isAddingMode && (
+              <AddDotButton 
+                isAddingMode={isAddingMode} 
+                toggleAddingMode={toggleAddingMode} 
+              />
+            )}
+            {isAddingMode && (
+              <button 
+                className="px-3 py-1 rounded-full bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors"
+                onClick={toggleAddingMode}
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         </>
       )}
 

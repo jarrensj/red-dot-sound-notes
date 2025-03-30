@@ -8,9 +8,16 @@ interface DotCanvasProps {
   onCanvasClick: (x: number, y: number) => void;
   onDotClick: (dot: Dot) => void;
   isAddingMode: boolean;
+  isViewOnly?: boolean;
 }
 
-const DotCanvas = ({ dots, onCanvasClick, onDotClick, isAddingMode }: DotCanvasProps) => {
+const DotCanvas = ({ 
+  dots, 
+  onCanvasClick, 
+  onDotClick, 
+  isAddingMode,
+  isViewOnly = true
+}: DotCanvasProps) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [hoveredDot, setHoveredDot] = useState<string | null>(null);
 
@@ -42,12 +49,17 @@ const DotCanvas = ({ dots, onCanvasClick, onDotClick, isAddingMode }: DotCanvasP
   return (
     <div 
       ref={canvasRef}
-      className={`w-full h-full ${isAddingMode ? 'cursor-crosshair' : 'cursor-default'}`}
+      className={`w-full h-full ${isAddingMode ? 'cursor-crosshair' : isViewOnly ? 'cursor-default' : 'cursor-pointer'}`}
       onClick={handleClick}
     >
       {isAddingMode && (
         <div className="absolute top-4 right-4 bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-medium animate-pulse">
           Click anywhere to add a new dot
+        </div>
+      )}
+      {isViewOnly && !isAddingMode && (
+        <div className="absolute top-4 left-4 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+          View mode
         </div>
       )}
       <AnimatePresence>
