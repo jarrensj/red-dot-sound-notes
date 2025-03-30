@@ -2,6 +2,8 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Dot } from "@/types/dot";
+import { Volume2, XCircle } from "lucide-react";
+import { useTextToSpeech } from "@/utils/useTextToSpeech";
 
 interface DotCanvasProps {
   dots: Dot[];
@@ -21,6 +23,7 @@ const DotCanvas = ({
   const canvasRef = useRef<HTMLDivElement>(null);
   const [hoveredDot, setHoveredDot] = useState<string | null>(null);
   const [viewingDot, setViewingDot] = useState<Dot | null>(null);
+  const { speak, stopSpeaking, isSpeaking } = useTextToSpeech();
 
   const handleClick = (e: React.MouseEvent) => {
     if (!canvasRef.current) return;
@@ -43,6 +46,10 @@ const DotCanvas = ({
       if (isViewOnly) {
         // In view mode, just toggle the visibility of the note
         setViewingDot(viewingDot?.id === clickedDot.id ? null : clickedDot);
+        // If we're closing a note while it's being spoken, stop the speech
+        if (viewingDot?.id === clickedDot.id && isSpeaking) {
+          stopSpeaking();
+        }
       } else {
         // In edit mode, open the modal
         onDotClick(clickedDot);
@@ -69,6 +76,10 @@ const DotCanvas = ({
         
         if (!clickedOnDot) {
           setViewingDot(null);
+          // Stop speaking if we're closing the popup
+          if (isSpeaking) {
+            stopSpeaking();
+          }
         }
       }
     };
@@ -77,7 +88,7 @@ const DotCanvas = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [viewingDot, dots]);
+  }, [viewingDot, dots, isSpeaking, stopSpeaking]);
 
   return (
     <div 
@@ -137,20 +148,40 @@ const DotCanvas = ({
               >
                 <div className="text-sm font-medium text-gray-800 mb-1">Note</div>
                 <div className="text-sm text-gray-600 whitespace-pre-wrap break-words">
-                  {dot.text || "No content"}
+                  {viewingDot.text || "No content"}
                 </div>
-                <button 
-                  className="absolute top-2 right-2 text-gray-400 hover:text-gray-600" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setViewingDot(null);
-                  }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </button>
+                <div className="absolute top-2 right-2 flex gap-2">
+                  {/* Text-to-speech button */}
+                  <button 
+                    className={`text-gray-400 hover:text-indigo-600 ${isSpeaking ? 'text-indigo-600' : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (isSpeaking) {
+                        stopSpeaking();
+                      } else {
+                        speak(viewingDot.text || "");
+                      }
+                    }}
+                    title={isSpeaking ? "Stop speaking" : "Speak note"}
+                  >
+                    <Volume2 size={16} />
+                  </button>
+                  
+                  {/* Close button */}
+                  <button 
+                    className="text-gray-400 hover:text-gray-600" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setViewingDot(null);
+                      if (isSpeaking) {
+                        stopSpeaking();
+                      }
+                    }}
+                    title="Close"
+                  >
+                    <XCircle size={16} />
+                  </button>
+                </div>
               </motion.div>
             )}
           </motion.div>
