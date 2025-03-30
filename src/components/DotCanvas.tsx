@@ -118,10 +118,10 @@ const DotCanvas = ({
           This is sample text of a sample blog post, you can leave red dot note annotations around the blog and it'll be a surprise of what user audio is saved there, could be a voice note about the blog or just random message or random audio.
         </p>
         <p className="text-gray-300 text-lg leading-relaxed mt-4">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat nisl ut dapibus. Mauris iaculis porttitor posuere.
+          They could leave a voice note all around a blog or around a website. There can be affirmations or really just random funny notes. You never know what audio might be saved there.
         </p>
         <p className="text-gray-300 text-lg leading-relaxed mt-4">
-          Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Cras mattis consectetur purus sit amet fermentum. Maecenas sed diam eget risus varius blandit sit amet non magna. Nullam quis risus eget urna mollis ornare vel eu leo.
+          Future things to implement include user authentication to record who left the note.
         </p>
       </div>
       
