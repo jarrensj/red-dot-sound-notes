@@ -130,8 +130,8 @@ const DotCanvas = ({
               left: `${dot.x}%`,
               top: `${dot.y}%`,
             }}
-            className={`absolute w-5 h-5 -translate-x-1/2 -translate-y-1/2 rounded-full
-                       ${dot.text ? "bg-red-600" : "bg-purple-200"} 
+            className={`absolute w-4 h-4 -translate-x-1/2 -translate-y-1/2 rounded-full
+                       ${dot.text ? "bg-red-500" : "bg-purple-200"} 
                        ${isViewOnly ? "cursor-pointer" : "cursor-pointer"}
                        ${(hoveredDot === dot.id || (isSpeaking && activeDotId === dot.id)) ? "ring-2 ring-purple-300 ring-opacity-70" : ""}`}
             onMouseEnter={() => setHoveredDot(dot.id)}
@@ -156,9 +156,9 @@ const DotCanvas = ({
                 initial={{ scale: 1 }}
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ repeat: Infinity, duration: 1.5 }}
-                className="absolute -right-3 -top-3 bg-red-100 rounded-full p-1"
+                className="absolute -right-2 -top-2 bg-red-100 rounded-full p-1"
               >
-                <Volume2 size={14} className="text-red-600" />
+                <Volume2 size={12} className="text-red-500" />
               </motion.div>
             )}
           </motion.div>
