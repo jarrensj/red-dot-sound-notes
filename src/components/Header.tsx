@@ -12,7 +12,7 @@ const Header = ({ dotsCount }: HeaderProps) => {
           <img 
             src="/logo.png" 
             alt="Logo" 
-            className="h-8 w-8" 
+            className="h-16 w-16" 
           />
           <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
             Red Dot Sound Notes
