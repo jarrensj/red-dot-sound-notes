@@ -4,8 +4,10 @@ import NoteModal from "@/components/NoteModal";
 import LoadingState from "@/components/dots/LoadingState";
 import ModeToggle from "@/components/dots/ModeToggle";
 import CanvasActions from "@/components/dots/CanvasActions";
+import AccessibilityToggle from "@/components/dots/AccessibilityToggle";
 import { useDotActions } from "@/hooks/useDotActions";
 import { Dot } from "@/types/dot";
+import { useState } from "react";
 
 interface DotManagerProps {
   dots: Dot[];
@@ -15,6 +17,8 @@ interface DotManagerProps {
 }
 
 const DotManager = ({ dots, setDots, isLoading, elevenlabsApiKey }: DotManagerProps) => {
+  const [isAccessibilityMode, setIsAccessibilityMode] = useState(false);
+  
   const {
     selectedDot,
     isModalOpen,
@@ -33,6 +37,10 @@ const DotManager = ({ dots, setDots, isLoading, elevenlabsApiKey }: DotManagerPr
     handleDeleteDot
   } = useDotActions(dots, setDots);
 
+  const toggleAccessibilityMode = () => {
+    setIsAccessibilityMode(prev => !prev);
+  };
+
   return (
     <div className="relative w-full max-w-5xl h-[80vh] rounded-xl border border-purple-200 bg-white/90 backdrop-blur-sm shadow-md overflow-hidden">
       {isLoading ? (
@@ -46,13 +54,20 @@ const DotManager = ({ dots, setDots, isLoading, elevenlabsApiKey }: DotManagerPr
             isAddingMode={isAddingMode}
             isViewOnly={isViewOnly}
             elevenlabsApiKey={elevenlabsApiKey}
+            isAccessibilityMode={isAccessibilityMode}
           />
           
           {/* Mode toggle button */}
-          <div className="absolute bottom-4 left-4">
+          <div className="absolute bottom-4 left-4 flex space-x-2">
             <ModeToggle 
               isViewOnly={isViewOnly} 
               toggleViewOnly={toggleViewOnly} 
+            />
+            
+            {/* Accessibility Toggle */}
+            <AccessibilityToggle
+              isAccessibilityMode={isAccessibilityMode}
+              toggleAccessibilityMode={toggleAccessibilityMode}
             />
           </div>
           

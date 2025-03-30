@@ -12,6 +12,7 @@ interface DotCanvasProps {
   isAddingMode: boolean;
   isViewOnly?: boolean;
   elevenlabsApiKey?: string;
+  isAccessibilityMode?: boolean;
 }
 
 const DotCanvas = ({ 
@@ -20,7 +21,8 @@ const DotCanvas = ({
   onDotClick, 
   isAddingMode,
   isViewOnly = true,
-  elevenlabsApiKey
+  elevenlabsApiKey,
+  isAccessibilityMode = false
 }: DotCanvasProps) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [hoveredDot, setHoveredDot] = useState<string | null>(null);
@@ -179,19 +181,21 @@ const DotCanvas = ({
                   <Volume2 size={10} className="text-red-500" />
                 </motion.div>
                 
-                {/* Text message tooltip when audio is playing */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="absolute top-full mt-6 left-1/2 -translate-x-1/2 px-3 py-2 bg-white/95 
-                             backdrop-blur-sm text-sm rounded-md shadow-lg border border-red-200 
-                             z-40 w-64 max-h-40 overflow-y-auto"
-                >
-                  <div className="font-semibold text-red-500 mb-1 flex items-center gap-1">
-                    <Volume2 size={12} className="inline" /> Now playing:
-                  </div>
-                  <div className="text-gray-700">{activeDot?.text || "No content"}</div>
-                </motion.div>
+                {/* Text message tooltip when audio is playing - only show when accessibility mode is on */}
+                {isAccessibilityMode && activeDot?.text && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 0 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="fixed bottom-4 right-4 px-4 py-3 bg-white/95 
+                              backdrop-blur-sm text-sm rounded-md shadow-lg border border-red-200 
+                              z-50 w-80 max-h-52 overflow-y-auto"
+                  >
+                    <div className="font-semibold text-red-500 mb-2 flex items-center gap-1">
+                      <Volume2 size={14} className="inline" /> Now playing:
+                    </div>
+                    <div className="text-gray-700">{activeDot.text}</div>
+                  </motion.div>
+                )}
               </>
             )}
           </motion.div>
