@@ -5,6 +5,9 @@ import DotManager from "@/components/dots/DotManager";
 
 const Index = () => {
   const { dots, setDots, isLoading } = useDots();
+  
+  // Get ElevenLabs API key from environment variable
+  const elevenlabsApiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 to-purple-50">
@@ -14,7 +17,8 @@ const Index = () => {
         <DotManager 
           dots={dots} 
           setDots={setDots} 
-          isLoading={isLoading} 
+          isLoading={isLoading}
+          elevenlabsApiKey={elevenlabsApiKey}
         />
       </main>
     </div>

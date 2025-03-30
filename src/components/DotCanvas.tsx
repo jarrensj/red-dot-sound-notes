@@ -46,11 +46,22 @@ const DotCanvas = ({
     
     if (clickedDot) {
       if (isViewOnly) {
-        // In view mode, just toggle the visibility of the note
-        setViewingDot(viewingDot?.id === clickedDot.id ? null : clickedDot);
-        // If we're closing a note while it's being spoken, stop the speech
-        if (viewingDot?.id === clickedDot.id && isSpeaking) {
+        // Stop any currently playing audio when clicking a new dot
+        if (isSpeaking) {
           stopSpeaking();
+        }
+        
+        // In view mode, just toggle the visibility of the note
+        if (viewingDot?.id === clickedDot.id) {
+          // If clicking the same dot, close the popup
+          setViewingDot(null);
+        } else {
+          // If clicking a different dot, show its popup and play audio
+          setViewingDot(clickedDot);
+          // Automatically play audio if there's text
+          if (clickedDot.text && clickedDot.text.trim() !== '') {
+            speak(clickedDot.text, elevenlabsApiKey);
+          }
         }
       } else {
         // In edit mode, open the modal

@@ -11,9 +11,10 @@ interface DotManagerProps {
   dots: Dot[];
   setDots: React.Dispatch<React.SetStateAction<Dot[]>>;
   isLoading: boolean;
+  elevenlabsApiKey?: string;
 }
 
-const DotManager = ({ dots, setDots, isLoading }: DotManagerProps) => {
+const DotManager = ({ dots, setDots, isLoading, elevenlabsApiKey }: DotManagerProps) => {
   const {
     selectedDot,
     isModalOpen,
@@ -44,6 +45,7 @@ const DotManager = ({ dots, setDots, isLoading }: DotManagerProps) => {
             onDotClick={handleDotClick}
             isAddingMode={isAddingMode}
             isViewOnly={isViewOnly}
+            elevenlabsApiKey={elevenlabsApiKey}
           />
           
           {/* Mode toggle button */}
