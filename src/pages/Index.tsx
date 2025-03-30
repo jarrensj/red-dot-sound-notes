@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import DotCanvas from "@/components/DotCanvas";
@@ -6,12 +5,15 @@ import NoteModal from "@/components/NoteModal";
 import Header from "@/components/Header";
 import { Dot } from "@/types/dot";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Plus, X } from "lucide-react";
 
 const Index = () => {
   const [dots, setDots] = useState<Dot[]>([]);
   const [selectedDot, setSelectedDot] = useState<Dot | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAddingMode, setIsAddingMode] = useState(false);
   const { toast } = useToast();
 
   // Load dots from Supabase on component mount
@@ -91,6 +93,9 @@ const Index = () => {
       return;
     }
 
+    // Exit adding mode after placing a dot
+    setIsAddingMode(false);
+    
     // We don't need to update local state here as the realtime subscription will handle it
     // But we do need to select the new dot and open the modal
     setSelectedDot(data);
@@ -160,6 +165,10 @@ const Index = () => {
     }
   };
 
+  const toggleAddingMode = () => {
+    setIsAddingMode(!isAddingMode);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50 to-purple-50">
       <Header dotsCount={dots.length} />
@@ -172,11 +181,37 @@ const Index = () => {
               <span className="ml-2 text-indigo-600">Loading dots...</span>
             </div>
           ) : (
-            <DotCanvas 
-              dots={dots} 
-              onCanvasClick={handleCanvasClick} 
-              onDotClick={handleDotClick}
-            />
+            <>
+              <DotCanvas 
+                dots={dots} 
+                onCanvasClick={handleCanvasClick} 
+                onDotClick={handleDotClick}
+                isAddingMode={isAddingMode}
+              />
+              <div className="absolute bottom-4 right-4 flex gap-2">
+                {isAddingMode ? (
+                  <Button 
+                    variant="destructive" 
+                    size="sm" 
+                    className="rounded-full" 
+                    onClick={toggleAddingMode}
+                  >
+                    <X size={18} className="mr-1" />
+                    Cancel
+                  </Button>
+                ) : (
+                  <Button 
+                    variant="default" 
+                    size="sm" 
+                    className="rounded-full bg-indigo-600 hover:bg-indigo-700" 
+                    onClick={toggleAddingMode}
+                  >
+                    <Plus size={18} className="mr-1" />
+                    Add Dot
+                  </Button>
+                )}
+              </div>
+            </>
           )}
         </div>
       </main>
