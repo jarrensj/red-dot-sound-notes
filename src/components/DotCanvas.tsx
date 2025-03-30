@@ -24,7 +24,7 @@ const DotCanvas = ({
 }: DotCanvasProps) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [hoveredDot, setHoveredDot] = useState<string | null>(null);
-  const [viewingDot, setViewingDot] = useState<Dot | null>(null);
+  const [activeDotId, setActiveDotId] = useState<string | null>(null);
   const { speak, stopSpeaking, isSpeaking } = useTextToSpeech();
 
   const handleClick = (e: React.MouseEvent) => {
@@ -51,12 +51,16 @@ const DotCanvas = ({
           stopSpeaking();
         }
         
+        // Set the active dot ID
+        setActiveDotId(clickedDot.id);
+        
         // If the dot has text, play it directly
         if (clickedDot.text && clickedDot.text.trim() !== '') {
           speak(clickedDot.text, elevenlabsApiKey);
         } else {
           // If no text, show a toast or something
           console.log("No text to play for this dot");
+          setActiveDotId(null);
         }
       } else {
         // In edit mode, open the modal
@@ -67,6 +71,13 @@ const DotCanvas = ({
       onCanvasClick(x, y);
     }
   };
+
+  // Reset active dot when audio stops
+  useEffect(() => {
+    if (!isSpeaking) {
+      setActiveDotId(null);
+    }
+  }, [isSpeaking]);
 
   // Close any audio when clicking elsewhere on the canvas
   useEffect(() => {
@@ -84,6 +95,7 @@ const DotCanvas = ({
         
         if (!clickedOnDot) {
           stopSpeaking();
+          setActiveDotId(null);
         }
       }
     };
@@ -121,7 +133,7 @@ const DotCanvas = ({
             className={`absolute w-5 h-5 -translate-x-1/2 -translate-y-1/2 rounded-full
                        ${dot.text ? "bg-indigo-600" : "bg-purple-200"} 
                        ${isViewOnly ? "cursor-pointer" : "cursor-pointer"}
-                       ${(hoveredDot === dot.id || (isSpeaking && viewingDot?.id === dot.id)) ? "ring-2 ring-purple-300 ring-opacity-70" : ""}`}
+                       ${(hoveredDot === dot.id || (isSpeaking && activeDotId === dot.id)) ? "ring-2 ring-purple-300 ring-opacity-70" : ""}`}
             onMouseEnter={() => setHoveredDot(dot.id)}
             onMouseLeave={() => setHoveredDot(null)}
           >
@@ -134,12 +146,12 @@ const DotCanvas = ({
                            backdrop-blur-sm text-xs rounded shadow-md border border-purple-100 
                            z-10 whitespace-nowrap"
               >
-                {isSpeaking ? "Playing audio..." : "Click to play audio"}
+                Click to play audio
               </motion.div>
             )}
             
             {/* Visual indicator when audio is playing */}
-            {isSpeaking && viewingDot?.id === dot.id && (
+            {isSpeaking && activeDotId === dot.id && (
               <motion.div
                 initial={{ scale: 1 }}
                 animate={{ scale: [1, 1.2, 1] }}
