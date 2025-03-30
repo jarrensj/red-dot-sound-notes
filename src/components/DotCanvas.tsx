@@ -63,7 +63,7 @@ const DotCanvas = ({ dots, onCanvasClick, onDotClick, isAddingMode }: DotCanvasP
               top: `${dot.y}%`,
             }}
             className={`absolute w-5 h-5 -translate-x-1/2 -translate-y-1/2 rounded-full cursor-pointer
-                       ${dot.text ? "bg-indigo-600" : "bg-purple-400"} 
+                       ${dot.text ? "bg-indigo-600" : "bg-purple-200"} 
                        ${hoveredDot === dot.id ? "ring-2 ring-purple-300 ring-opacity-70" : ""}`}
             onMouseEnter={() => setHoveredDot(dot.id)}
             onMouseLeave={() => setHoveredDot(null)}
