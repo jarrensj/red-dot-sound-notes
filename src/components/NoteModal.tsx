@@ -86,7 +86,7 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, initialText, isNewDot = 
             className="gap-1"
           >
             <Trash2 size={16} />
-            Delete Dot
+            {isNewDot ? "Discard Dot" : "Delete Dot"}
           </Button>
           
           <div className="flex gap-2">

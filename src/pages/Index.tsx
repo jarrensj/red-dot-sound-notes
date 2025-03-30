@@ -188,6 +188,12 @@ const Index = () => {
       // If it's a new dot (temporary), just remove it from the UI
       if (isNewDot || selectedDot.id.toString().startsWith('temp-')) {
         setDots(prevDots => prevDots.filter(dot => dot.id !== selectedDot.id));
+        setIsModalOpen(false);
+        
+        toast({
+          title: "Dot discarded",
+          description: "The new dot was discarded.",
+        });
       } else {
         // For existing dots, delete from the database
         const { error } = await supabase
@@ -196,15 +202,15 @@ const Index = () => {
           .eq('id', selectedDot.id);
         
         if (error) throw error;
+        
+        // Close modal
+        setIsModalOpen(false);
+        
+        toast({
+          title: "Dot deleted",
+          description: "The dot and its note have been removed.",
+        });
       }
-      
-      // Close modal
-      setIsModalOpen(false);
-      
-      toast({
-        title: "Dot deleted",
-        description: "The dot and its note have been removed.",
-      });
     } catch (error) {
       console.error("Error deleting dot:", error);
       toast({
