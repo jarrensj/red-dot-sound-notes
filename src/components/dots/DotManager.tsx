@@ -19,6 +19,7 @@ const DotManager = ({ dots, setDots, isLoading }: DotManagerProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddingMode, setIsAddingMode] = useState(false);
   const [isNewDot, setIsNewDot] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const { toast } = useToast();
 
   const handleCanvasClick = async (x: number, y: number) => {
@@ -37,6 +38,7 @@ const DotManager = ({ dots, setDots, isLoading }: DotManagerProps) => {
       // Select the temporary dot and open the modal
       setSelectedDot(tempDot);
       setIsNewDot(true);
+      setIsEditMode(true); // New dots start in edit mode
       setIsModalOpen(true);
       
       // Exit adding mode after placing a dot
@@ -54,7 +56,12 @@ const DotManager = ({ dots, setDots, isLoading }: DotManagerProps) => {
   const handleDotClick = (dot: Dot) => {
     setSelectedDot(dot);
     setIsNewDot(false);
+    setIsEditMode(false); // Existing dots start in view-only mode
     setIsModalOpen(true);
+  };
+
+  const toggleEditMode = () => {
+    setIsEditMode(!isEditMode);
   };
 
   const handleSaveNote = async (text: string) => {
@@ -97,8 +104,9 @@ const DotManager = ({ dots, setDots, isLoading }: DotManagerProps) => {
         if (error) throw error;
       }
       
-      // Close modal
+      // Close modal and reset edit mode
       setIsModalOpen(false);
+      setIsEditMode(false);
       
       toast({
         title: text ? "Note saved" : "Note removed",
@@ -186,6 +194,8 @@ const DotManager = ({ dots, setDots, isLoading }: DotManagerProps) => {
         onDelete={handleDeleteDot}
         initialText={selectedDot?.text || ""}
         isNewDot={isNewDot}
+        isEditMode={isEditMode}
+        onEditToggle={toggleEditMode}
       />
     </div>
   );

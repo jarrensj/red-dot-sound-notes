@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Trash2 } from "lucide-react";
+import { Trash2, Edit } from "lucide-react";
 
 interface NoteModalProps {
   isOpen: boolean;
@@ -12,9 +12,20 @@ interface NoteModalProps {
   onDelete: () => void;
   initialText: string;
   isNewDot?: boolean;
+  isEditMode?: boolean;
+  onEditToggle?: () => void;
 }
 
-const NoteModal = ({ isOpen, onClose, onSave, onDelete, initialText, isNewDot = false }: NoteModalProps) => {
+const NoteModal = ({ 
+  isOpen, 
+  onClose, 
+  onSave, 
+  onDelete, 
+  initialText, 
+  isNewDot = false, 
+  isEditMode = false,
+  onEditToggle
+}: NoteModalProps) => {
   const [text, setText] = useState(initialText);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const previousOpenState = useRef(isOpen);
@@ -36,14 +47,14 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, initialText, isNewDot = 
     previousOpenState.current = isOpen;
   }, [isOpen, initialText]);
 
-  // Focus the textarea when modal opens
+  // Focus the textarea when modal opens in edit mode
   useEffect(() => {
-    if (isOpen && textareaRef.current) {
+    if (isOpen && isEditMode && textareaRef.current) {
       setTimeout(() => {
         textareaRef.current?.focus();
       }, 100);
     }
-  }, [isOpen]);
+  }, [isOpen, isEditMode]);
 
   const handleSave = () => {
     const trimmedText = text.trim();
@@ -65,40 +76,81 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, initialText, isNewDot = 
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleCancel()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{isNewDot ? "Add New Note" : "Your Note"}</DialogTitle>
+          <DialogTitle>
+            {isNewDot ? "Add New Note" : isEditMode ? "Edit Note" : "View Note"}
+          </DialogTitle>
         </DialogHeader>
         
         <div className="py-4">
-          <Textarea
-            ref={textareaRef}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="What's on your mind?"
-            className="resize-none h-32"
-          />
+          {isEditMode ? (
+            <Textarea
+              ref={textareaRef}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="What's on your mind?"
+              className="resize-none h-32"
+            />
+          ) : (
+            <div className="border border-input rounded-md bg-background px-3 py-2 text-sm min-h-[80px] max-h-[200px] overflow-y-auto">
+              {initialText || "No content"}
+            </div>
+          )}
         </div>
         
         <DialogFooter className="sm:justify-between">
-          <Button 
-            variant="destructive" 
-            size="sm" 
-            onClick={onDelete}
-            className="gap-1"
-          >
-            <Trash2 size={16} />
-            {isNewDot ? "Discard Dot" : "Delete Dot"}
-          </Button>
+          {isEditMode ? (
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              onClick={onDelete}
+              className="gap-1"
+            >
+              <Trash2 size={16} />
+              {isNewDot ? "Discard Dot" : "Delete Dot"}
+            </Button>
+          ) : (
+            !isNewDot && (
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                onClick={onDelete}
+                className="gap-1"
+              >
+                <Trash2 size={16} />
+                Delete Dot
+              </Button>
+            )
+          )}
           
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleCancel}>
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSave}
-              disabled={!text.trim()}
-            >
-              Save Note
-            </Button>
+            {isEditMode ? (
+              <>
+                <Button variant="outline" onClick={handleCancel}>
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleSave}
+                  disabled={!text.trim()}
+                >
+                  Save Note
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" onClick={onClose}>
+                  Close
+                </Button>
+                {!isNewDot && onEditToggle && (
+                  <Button 
+                    onClick={onEditToggle}
+                    className="gap-1"
+                  >
+                    <Edit size={16} />
+                    Edit
+                  </Button>
+                )}
+              </>
+            )}
           </div>
         </DialogFooter>
       </DialogContent>
