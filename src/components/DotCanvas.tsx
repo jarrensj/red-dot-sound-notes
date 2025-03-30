@@ -120,13 +120,12 @@ const DotCanvas = ({
       {/* Background sample text */}
       <div className="absolute inset-0 p-8 overflow-auto pointer-events-none">
         <p className="text-lg leading-relaxed">
-          This is sample text of a sample blog post, you can leave red dot note annotations around the blog and it'll be a surprise of what user audio is saved there, could be a voice note about the blog or just random message or random audio.
+          I made Red Dot Sound Notes. It lets you leave red dots (audio notes) all around a blog post or landing page wherever you want on the page. It’s interactive and can provide an outlet for users to provide commentary on blog / landing page on certain parts or just leave funny comments. You never know what’s going to happen when you click a red dot!         </p>
+        <p className="text-lg leading-relaxed mt-4">
+          We really don't know what kind of insight you might hear when you click a red dot or really what's going to happen until you click it. It's also like a message board where you can leave notes for other users to hear. 
         </p>
         <p className="text-lg leading-relaxed mt-4">
-          They could leave a voice note all around a blog or around a website. There can be affirmations or really just random funny notes. You never know what audio might be saved there.
-        </p>
-        <p className="text-lg leading-relaxed mt-4">
-          Future things to implement include user authentication to record who left the note.
+          Future things to implement include user authentication to record who left the note or even adding a timer to the dot so it expires after a certain amount of time or adding Stripe to having readers have to pay to leave a note to help support the site or blogger. This helps out bloggers.
         </p>
       </div>
       
