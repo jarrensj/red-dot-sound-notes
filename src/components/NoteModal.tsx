@@ -16,11 +16,24 @@ interface NoteModalProps {
 const NoteModal = ({ isOpen, onClose, onSave, onDelete, initialText }: NoteModalProps) => {
   const [text, setText] = useState(initialText);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const previousOpenState = useRef(isOpen);
 
-  // Update text when initialText changes
+  // Update text when initialText changes or when modal opens with a new instance
   useEffect(() => {
-    setText(initialText);
-  }, [initialText]);
+    // Only update the text state if the modal is opening (not was open before)
+    // or if initialText has changed
+    if (!previousOpenState.current && isOpen) {
+      setText(initialText);
+    } else if (previousOpenState.current && isOpen) {
+      // Modal was already open, only update if initialText changed
+      if (initialText !== text) {
+        setText(initialText);
+      }
+    }
+    
+    // Update previous open state
+    previousOpenState.current = isOpen;
+  }, [isOpen, initialText]);
 
   // Focus the textarea when modal opens
   useEffect(() => {
@@ -33,6 +46,8 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, initialText }: NoteModal
 
   const handleSave = () => {
     onSave(text.trim());
+    // Clear the text after saving
+    setText("");
   };
 
   return (
