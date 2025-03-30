@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Dot } from "@/types/dot";
@@ -120,12 +119,18 @@ const DotCanvas = ({
       {/* Background sample text */}
       <div className="absolute inset-0 p-8 overflow-auto pointer-events-none">
         <p className="text-lg leading-relaxed">
-          I made Red Dot Sound Notes. It lets you leave red dots (audio notes) all around a blog post or landing page wherever you want on the page. It’s interactive and can provide an outlet for users to provide commentary on blog / landing page on certain parts or just leave funny comments. You never know what’s going to happen when you click a red dot!         </p>
+          I made Red Dot Sound Notes. It lets you leave red dots (audio notes) all around a blog post or landing page wherever you want on the page. It's interactive and can provide an outlet for users to provide commentary on blog / landing page on certain parts or just leave funny comments. You never know what's going to happen when you click a red dot! </p>
         <p className="text-lg leading-relaxed mt-4">
           We really don't know what kind of insight you might hear when you click a red dot or really what's going to happen until you click it. It's also like a message board where you can leave notes for other users to hear. 
         </p>
         <p className="text-lg leading-relaxed mt-4">
           Future things to implement include user authentication to record who left the note or even adding a timer to the dot so it expires after a certain amount of time or adding Stripe to having readers have to pay to leave a note to help support the site or blogger. This helps out bloggers.
+        </p>
+        <p className="text-lg leading-relaxed mt-4">
+          I used Supabase to store the notes and the coordinates of the dots. I also used ElevenLabs to generate the audio for the dots with its API for text-to-speech.
+        </p>
+        <p className="text-lg leading-relaxed mt-4">
+        The purpose of this is to create an interactive and engaging experience to the visitor. They not only just read the blog or landing page but they can now also write to it with their insights on certain areas or leave affirmations or appreciation. This also would extend their stay on the website because they can also just click around and see what other user's have left as notes around the blog or landing page. This can increase user visits and how long they stay on the website. 
         </p>
       </div>
       
