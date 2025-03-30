@@ -8,11 +8,23 @@ export const useTextToSpeech = () => {
   const [audioSource, setAudioSource] = useState<AudioBufferSourceNode | null>(null);
   const { toast } = useToast();
 
-  const speak = async (text: string) => {
+  const speak = async (text: string, apiKey?: string) => {
     if (!text || text.trim() === '') {
       toast({
         title: "Nothing to speak",
         description: "This note doesn't contain any text to speak.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Get API key from env or parameter
+    const elevenlabsApiKey = apiKey || import.meta.env.VITE_ELEVENLABS_API_KEY;
+
+    if (!elevenlabsApiKey) {
+      toast({
+        title: "API Key Missing",
+        description: "Please provide an ElevenLabs API key to use text-to-speech.",
         variant: "destructive",
       });
       return;
@@ -31,7 +43,7 @@ export const useTextToSpeech = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'xi-api-key': import.meta.env.VITE_ELEVENLABS_API_KEY || '',
+          'xi-api-key': elevenlabsApiKey,
         },
         body: JSON.stringify({
           text,
@@ -51,7 +63,7 @@ export const useTextToSpeech = () => {
       const audioData = await response.arrayBuffer();
       
       // Create audio context if it doesn't exist
-      const ctx = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+      const ctx = audioContext || new AudioContext();
       setAudioContext(ctx);
       
       // Decode audio data

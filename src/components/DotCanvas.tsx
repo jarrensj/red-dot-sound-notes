@@ -11,6 +11,7 @@ interface DotCanvasProps {
   onDotClick: (dot: Dot) => void;
   isAddingMode: boolean;
   isViewOnly?: boolean;
+  elevenlabsApiKey?: string;
 }
 
 const DotCanvas = ({ 
@@ -18,7 +19,8 @@ const DotCanvas = ({
   onCanvasClick, 
   onDotClick, 
   isAddingMode,
-  isViewOnly = true
+  isViewOnly = true,
+  elevenlabsApiKey
 }: DotCanvasProps) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [hoveredDot, setHoveredDot] = useState<string | null>(null);
@@ -102,8 +104,6 @@ const DotCanvas = ({
         </div>
       )}
       
-      {/* Remove the view mode indicator since we now have a button */}
-      
       <AnimatePresence>
         {dots.map((dot) => (
           <motion.div
@@ -159,7 +159,7 @@ const DotCanvas = ({
                       if (isSpeaking) {
                         stopSpeaking();
                       } else {
-                        speak(viewingDot.text || "");
+                        speak(viewingDot.text || "", elevenlabsApiKey);
                       }
                     }}
                     title={isSpeaking ? "Stop speaking" : "Speak note"}
