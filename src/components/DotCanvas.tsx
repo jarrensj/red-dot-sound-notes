@@ -106,6 +106,9 @@ const DotCanvas = ({
     };
   }, [dots, isSpeaking, stopSpeaking]);
 
+  // Find the active dot object
+  const activeDot = activeDotId ? dots.find(dot => dot.id === activeDotId) : null;
+
   return (
     <div 
       ref={canvasRef}
@@ -166,14 +169,30 @@ const DotCanvas = ({
             
             {/* Visual indicator when audio is playing */}
             {isSpeaking && activeDotId === dot.id && (
-              <motion.div
-                initial={{ scale: 1 }}
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ repeat: Infinity, duration: 1.5 }}
-                className="absolute -right-2 -top-2 bg-red-100 rounded-full p-1 z-30"
-              >
-                <Volume2 size={10} className="text-red-500" />
-              </motion.div>
+              <>
+                <motion.div
+                  initial={{ scale: 1 }}
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                  className="absolute -right-2 -top-2 bg-red-100 rounded-full p-1 z-30"
+                >
+                  <Volume2 size={10} className="text-red-500" />
+                </motion.div>
+                
+                {/* Text message tooltip when audio is playing */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="absolute top-full mt-6 left-1/2 -translate-x-1/2 px-3 py-2 bg-white/95 
+                             backdrop-blur-sm text-sm rounded-md shadow-lg border border-red-200 
+                             z-40 w-64 max-h-40 overflow-y-auto"
+                >
+                  <div className="font-semibold text-red-500 mb-1 flex items-center gap-1">
+                    <Volume2 size={12} className="inline" /> Now playing:
+                  </div>
+                  <div className="text-gray-700">{activeDot?.text || "No content"}</div>
+                </motion.div>
+              </>
             )}
           </motion.div>
         ))}
