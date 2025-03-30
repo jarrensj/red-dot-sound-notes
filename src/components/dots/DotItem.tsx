@@ -26,12 +26,10 @@ const DotItem = ({
       exit={{ scale: 0, opacity: 0 }}
       whileHover={{ scale: 1.2 }}
       style={{
-        position: 'absolute',
         left: `${dot.x}%`,
         top: `${dot.y}%`,
-        transform: 'translate(-50%, -50%)'
       }}
-      className={`w-5 h-5 rounded-full
+      className={`absolute w-5 h-5 -translate-x-1/2 -translate-y-1/2 rounded-full
                  ${dot.text ? "bg-indigo-600" : "bg-purple-200"} 
                  ${isViewOnly ? "cursor-pointer" : "cursor-pointer"}
                  ${isViewing ? "ring-2 ring-purple-300 ring-opacity-70" : ""}`}
