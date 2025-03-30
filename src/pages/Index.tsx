@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import DotCanvas from "@/components/DotCanvas";
@@ -14,6 +15,7 @@ const Index = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddingMode, setIsAddingMode] = useState(false);
+  const [isNewDot, setIsNewDot] = useState(false);
   const { toast } = useToast();
 
   // Load dots from Supabase on component mount
@@ -31,7 +33,8 @@ const Index = () => {
         }
 
         if (data) {
-          setDots(data);
+          // Only show dots that have text
+          setDots(data.filter(dot => dot.text && dot.text.trim() !== ''));
         }
       } catch (error) {
         console.error("Error fetching dots:", error);
@@ -56,12 +59,20 @@ const Index = () => {
           console.log('Change received!', payload);
           if (payload.eventType === 'INSERT') {
             const newDot = payload.new as Dot;
-            setDots(prevDots => [...prevDots, newDot]);
+            // Only add dots with text
+            if (newDot.text && newDot.text.trim() !== '') {
+              setDots(prevDots => [...prevDots, newDot]);
+            }
           } else if (payload.eventType === 'UPDATE') {
             const updatedDot = payload.new as Dot;
-            setDots(prevDots => 
-              prevDots.map(dot => dot.id === updatedDot.id ? updatedDot : dot)
-            );
+            setDots(prevDots => {
+              // If the dot has text, update it; otherwise, remove it
+              if (updatedDot.text && updatedDot.text.trim() !== '') {
+                return prevDots.map(dot => dot.id === updatedDot.id ? updatedDot : dot);
+              } else {
+                return prevDots.filter(dot => dot.id !== updatedDot.id);
+              }
+            });
           } else if (payload.eventType === 'DELETE') {
             const deletedDot = payload.old as Dot;
             setDots(prevDots => prevDots.filter(dot => dot.id !== deletedDot.id));
@@ -76,59 +87,92 @@ const Index = () => {
   }, [toast]);
 
   const handleCanvasClick = async (x: number, y: number) => {
-    // Check if clicked on empty space - create new dot
-    const { data, error } = await supabase
-      .from('dots')
-      .insert([{ x, y, text: '' }])
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Error creating dot:", error);
+    try {
+      // Create a temporary dot without saving to database yet
+      const tempDot: Dot = {
+        id: 'temp-' + Date.now(),
+        x,
+        y,
+        text: ''
+      };
+      
+      // Add the temporary dot to the local state
+      setDots(prevDots => [...prevDots, tempDot]);
+      
+      // Select the temporary dot and open the modal
+      setSelectedDot(tempDot);
+      setIsNewDot(true);
+      setIsModalOpen(true);
+      
+      // Exit adding mode after placing a dot
+      setIsAddingMode(false);
+    } catch (error) {
+      console.error("Error preparing new dot:", error);
       toast({
         title: "Error creating dot",
         description: "We couldn't create your dot. Please try again.",
         variant: "destructive",
       });
-      return;
     }
-
-    // Exit adding mode after placing a dot
-    setIsAddingMode(false);
-    
-    // We don't need to update local state here as the realtime subscription will handle it
-    // But we do need to select the new dot and open the modal
-    setSelectedDot(data);
-    setIsModalOpen(true);
   };
 
   const handleDotClick = (dot: Dot) => {
     setSelectedDot(dot);
+    setIsNewDot(false);
     setIsModalOpen(true);
   };
 
   const handleSaveNote = async (text: string) => {
     if (!selectedDot) return;
     
+    // If it's a new dot and has no text, don't save it
+    if (isNewDot && !text) {
+      // Remove the temporary dot from the UI
+      setDots(prevDots => prevDots.filter(dot => dot.id !== selectedDot.id));
+      setIsModalOpen(false);
+      return;
+    }
+    
     try {
-      const { error } = await supabase
-        .from('dots')
-        .update({ text, updated_at: new Date().toISOString() })
-        .eq('id', selectedDot.id);
+      // For new dots, we need to create them in the database
+      if (isNewDot) {
+        const { error } = await supabase
+          .from('dots')
+          .insert([{ 
+            x: selectedDot.x, 
+            y: selectedDot.y, 
+            text,
+            updated_at: new Date().toISOString()
+          }]);
+        
+        if (error) throw error;
+        
+        // Remove the temporary dot from UI (realtime will add the real one)
+        setDots(prevDots => prevDots.filter(dot => dot.id !== selectedDot.id));
+      } else {
+        // For existing dots, update them
+        const { error } = await supabase
+          .from('dots')
+          .update({ 
+            text, 
+            updated_at: new Date().toISOString() 
+          })
+          .eq('id', selectedDot.id);
+        
+        if (error) throw error;
+      }
       
-      if (error) throw error;
-      
-      // Close modal - the realtime subscription will update the UI
+      // Close modal
       setIsModalOpen(false);
       
       toast({
         title: text ? "Note saved" : "Note removed",
         description: text 
           ? "Your note has been saved to this dot." 
-          : "This dot is now empty.",
+          : "This dot has been removed.",
       });
     } catch (error) {
-      console.error("Error updating dot:", error);
+      console.error("Error saving dot:", error);
       toast({
         title: "Error saving note",
         description: "We couldn't save your note. Please try again.",
@@ -141,14 +185,20 @@ const Index = () => {
     if (!selectedDot) return;
     
     try {
-      const { error } = await supabase
-        .from('dots')
-        .delete()
-        .eq('id', selectedDot.id);
+      // If it's a new dot (temporary), just remove it from the UI
+      if (isNewDot || selectedDot.id.toString().startsWith('temp-')) {
+        setDots(prevDots => prevDots.filter(dot => dot.id !== selectedDot.id));
+      } else {
+        // For existing dots, delete from the database
+        const { error } = await supabase
+          .from('dots')
+          .delete()
+          .eq('id', selectedDot.id);
+        
+        if (error) throw error;
+      }
       
-      if (error) throw error;
-      
-      // Close modal - the realtime subscription will update the UI
+      // Close modal
       setIsModalOpen(false);
       
       toast({
@@ -222,6 +272,7 @@ const Index = () => {
         onSave={handleSaveNote}
         onDelete={handleDeleteDot}
         initialText={selectedDot?.text || ""}
+        isNewDot={isNewDot}
       />
     </div>
   );

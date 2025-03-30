@@ -11,9 +11,10 @@ interface NoteModalProps {
   onSave: (text: string) => void;
   onDelete: () => void;
   initialText: string;
+  isNewDot?: boolean;
 }
 
-const NoteModal = ({ isOpen, onClose, onSave, onDelete, initialText }: NoteModalProps) => {
+const NoteModal = ({ isOpen, onClose, onSave, onDelete, initialText, isNewDot = false }: NoteModalProps) => {
   const [text, setText] = useState(initialText);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const previousOpenState = useRef(isOpen);
@@ -45,16 +46,26 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, initialText }: NoteModal
   }, [isOpen]);
 
   const handleSave = () => {
-    onSave(text.trim());
+    const trimmedText = text.trim();
+    onSave(trimmedText);
     // Clear the text after saving
     setText("");
   };
 
+  const handleCancel = () => {
+    // For new dots with no text, delete them when canceling
+    if (isNewDot && !text.trim()) {
+      onDelete();
+    } else {
+      onClose();
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleCancel()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Your Note</DialogTitle>
+          <DialogTitle>{isNewDot ? "Add New Note" : "Your Note"}</DialogTitle>
         </DialogHeader>
         
         <div className="py-4">
@@ -79,10 +90,13 @@ const NoteModal = ({ isOpen, onClose, onSave, onDelete, initialText }: NoteModal
           </Button>
           
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button onClick={handleSave}>
+            <Button 
+              onClick={handleSave}
+              disabled={!text.trim()}
+            >
               Save Note
             </Button>
           </div>
