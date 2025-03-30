@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import DotCanvas from "@/components/DotCanvas";
@@ -7,6 +6,8 @@ import AddDotButton from "@/components/dots/AddDotButton";
 import LoadingState from "@/components/dots/LoadingState";
 import { Dot } from "@/types/dot";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Eye, Edit } from "lucide-react";
 
 interface DotManagerProps {
   dots: Dot[];
@@ -77,6 +78,11 @@ const DotManager = ({ dots, setDots, isLoading }: DotManagerProps) => {
       toast({
         title: "Edit mode activated",
         description: "You can now edit dots by clicking on them.",
+      });
+    } else {
+      toast({
+        title: "View mode activated",
+        description: "Click dots to view their content without editing.",
       });
     }
   };
@@ -185,6 +191,11 @@ const DotManager = ({ dots, setDots, isLoading }: DotManagerProps) => {
     // When enabling adding mode, also disable view-only mode
     if (!isAddingMode) {
       setIsViewOnly(false);
+      
+      toast({
+        title: "Adding mode activated",
+        description: "Click anywhere on the canvas to add a new dot.",
+      });
     }
     setIsAddingMode(!isAddingMode);
   };
@@ -202,6 +213,29 @@ const DotManager = ({ dots, setDots, isLoading }: DotManagerProps) => {
             isAddingMode={isAddingMode}
             isViewOnly={isViewOnly}
           />
+          
+          {/* Mode toggle and buttons */}
+          <div className="absolute bottom-4 left-4">
+            <Button
+              variant="outline"
+              size="sm"
+              className={`rounded-full ${isViewOnly ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-purple-100 text-purple-700 border-purple-200'}`}
+              onClick={toggleViewOnly}
+            >
+              {isViewOnly ? (
+                <>
+                  <Eye size={16} className="mr-1" />
+                  View Mode
+                </>
+              ) : (
+                <>
+                  <Edit size={16} className="mr-1" />
+                  Edit Mode
+                </>
+              )}
+            </Button>
+          </div>
+          
           <div className="absolute bottom-4 right-4 flex gap-2">
             {!isAddingMode && (
               <AddDotButton 

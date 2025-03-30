@@ -57,11 +57,9 @@ const DotCanvas = ({
           Click anywhere to add a new dot
         </div>
       )}
-      {isViewOnly && !isAddingMode && (
-        <div className="absolute top-4 left-4 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
-          View mode
-        </div>
-      )}
+      
+      {/* Remove the view mode indicator since we now have a button */}
+      
       <AnimatePresence>
         {dots.map((dot) => (
           <motion.div
@@ -74,8 +72,9 @@ const DotCanvas = ({
               left: `${dot.x}%`,
               top: `${dot.y}%`,
             }}
-            className={`absolute w-5 h-5 -translate-x-1/2 -translate-y-1/2 rounded-full cursor-pointer
+            className={`absolute w-5 h-5 -translate-x-1/2 -translate-y-1/2 rounded-full
                        ${dot.text ? "bg-indigo-600" : "bg-purple-200"} 
+                       ${isViewOnly ? "cursor-help" : "cursor-pointer"}
                        ${hoveredDot === dot.id ? "ring-2 ring-purple-300 ring-opacity-70" : ""}`}
             onMouseEnter={() => setHoveredDot(dot.id)}
             onMouseLeave={() => setHoveredDot(null)}
